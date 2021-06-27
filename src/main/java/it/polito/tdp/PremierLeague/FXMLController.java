@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.PremierLeague.model.Model;
+import it.polito.tdp.PremierLeague.model.Team;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -35,7 +36,7 @@ public class FXMLController {
     private Button btnSimula; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbSquadra"
-    private ComboBox<?> cmbSquadra; // Value injected by FXMLLoader
+    private ComboBox<Team> cmbSquadra; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtN"
     private TextField txtN; // Value injected by FXMLLoader
@@ -48,17 +49,51 @@ public class FXMLController {
 
     @FXML
     void doClassifica(ActionEvent event) {
-
+    	
+    	Team squadra = this.cmbSquadra.getValue();
+    	
+    	if(squadra==null) {
+    		this.txtResult.setText("Devi prima selezionare una squadra");
+    		return;
+    	}
+    	
+    	// da sistemare dopo 
+    	model.classificaSquadra(squadra);
+    	
+    	this.txtResult.setText("SQUADRE MIGLIORI:\n");
+    	
+    	for(Team t : model.getMigliori().keySet()) {
+    		this.txtResult.appendText(t+"("+model.getMigliori().get(t)+")\n");
+    	}
+    	
+    	this.txtResult.appendText("\nSQUADRE PEGGIORI:\n");
+    	
+    	for(Team t : model.getPeggiori().keySet()) {
+    		this.txtResult.appendText(t+"("+model.getPeggiori().get(t)+")\n");
+    	}
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-
+    	
+    	this.model.creaGrafo();
+    	int vertici = this.model.getGrafo().vertexSet().size();
+    	int archi = this.model.getGrafo().edgeSet().size();
+    	
+    	txtResult.setText("Grafo creato:\n#Vertici: "+vertici+"\n#Archi: "+archi);
+    	
+    	this.cmbSquadra.getItems().addAll(this.model.getGrafo().vertexSet()); //popolo tendina squadre
     }
 
     @FXML
     void doSimula(ActionEvent event) {
-
+    	
+    	int N = Integer.parseInt(this.txtN.getText());
+    	int X = Integer.parseInt(this.txtX.getText());
+    	
+    	this.model.simula(N, X);
+    	
+    	this.txtResult.setText("Media reporter a partita: "+this.model.getMediaReporterPartita()+"\nNumero partite con reporter minori di "+X+": "+model.getNumPartiteMinX());
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
